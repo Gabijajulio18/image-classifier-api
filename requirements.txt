@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+pandas
+numpy
+pillow
+tensorflow>=2.12
+scikit-learn
+python-multipart  # Needed for file uploads in FastAPI
