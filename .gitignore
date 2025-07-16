@@ -144,6 +144,16 @@ ENV/
 env.bak/
 venv.bak/
 
+# Data and models
+*.h5
+*.keras
+*.ckpt
+models/
+data/
+test_images/
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
 # Spyder project settings
 .spyderproject
 .spyproject
