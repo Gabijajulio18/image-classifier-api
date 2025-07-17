@@ -7,7 +7,7 @@ import os
 # Settings
 img_size = (180, 180)
 batch_size = 32
-train_data_dir = "data/flowers_photos"
+train_data_dir = "data/flower_photos"
 
 
 # Load data
@@ -16,16 +16,16 @@ train_ds = tf.keras.utils.image_dataset_from_directory(
     validation_split=0.2,
     subset="training",
     seed=1337,
-    img_size=img_size,
+    image_size=img_size,
     batch_size=batch_size,
 )
 
 val_ds = tf.keras.utils.image_dataset_from_directory(
     train_data_dir,
-    validation_splt=0.2,
+    validation_split=0.2,
     subset="validation",
     seed=1337,
-    img_size=img_size,
+    image_size=img_size,
     batch_size=batch_size,
 )
 
@@ -72,7 +72,7 @@ with open("src/models/class_names.txt", "w") as f:
 print("Model and classes names save to src/models/")
 
 test_data_dir = "data/flower_photos_test"
-if os.path.exist(test_data_dir):
+if os.path.exists(test_data_dir):
     print("\n--- Evaluating on Test Set ---")
     test_ds = tf.keras.utils.image_dataset_from_directory(
         test_data_dir,
@@ -81,4 +81,4 @@ if os.path.exist(test_data_dir):
         shuffle=False,
     )
     test_loss, test_acc = model.evaluate(test_ds)
-    print(f"Test accuracy: {test_ds:.3f}")
+    print(f"Test accuracy: {test_acc:.3f}")
