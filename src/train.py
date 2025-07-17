@@ -1,6 +1,6 @@
 import tensorflow as tf
 from tensorflow import keras
-from tensorflow.keras import _tf_uses_legacy_keras
+from tensorflow.keras import layers
 import os
 
 
