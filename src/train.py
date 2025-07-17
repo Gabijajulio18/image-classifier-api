@@ -49,13 +49,15 @@ model = keras.Sequential(
         layers.Flatten(),  # Converts 3D feature to 1D vector
         layers.Dense(128, activation="relu"),  # Learns higher-level features
         layers.Dense(
-            num_classes, activation="softmax"
+            num_classes, activation="linear"
         ),  # Outputs probabilities for each class
     ]
 )
 
 model.compile(
-    optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"]
+    optimizer="adam",
+    loss=keras.loss.SparseCategoricalCrossentropy(from_logits=True),
+    metrics=["accuracy"],
 )
 
 
