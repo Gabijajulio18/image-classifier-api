@@ -6,7 +6,7 @@ A fully reproducible, production-ready AI project that classifies flower images 
 
 ##  Project Overview
 
-- **Goal:** Deploy a robust, Dockerized API for image classification using a custom CNN trained on the [TensorFlow Flowers dataset](https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz).
+- **Goal:** Deploy a robust, Dockerized API for image classification using a custom CNN trained on the [TensorFlow Flowers dataset](https://www.tensorflow.org/datasets/catalog/tf_flowers).
 - **What it does:** Accepts image uploads, returns predicted class (daisy, dandelion, rose, sunflower, tulip) and probabilities for all classes.
 - **Why:** Demonstrates deep learning, software engineering, MLOps, and reproducible research
 
