@@ -80,7 +80,7 @@ if os.path.exists(test_data_dir):
     print("\n--- Evaluating on Test Set ---")
     test_ds = tf.keras.utils.image_dataset_from_directory(
         test_data_dir,
-        img_size=img_size,
+        image_size=img_size,
         batch_size=batch_size,
         shuffle=False,
     )
