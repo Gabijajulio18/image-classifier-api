@@ -5,28 +5,28 @@ import os
 
 
 # Settings
-img_size = (180, 180)
-batch_size = 32
-train_data_dir = "data/flower_photos"
-
+IMG_SIZE = (180, 180)
+BATCH_SIZE = 32
+TRAIN_DATA_DIR = "data/flower_photos"
+TEST_DATA_DIR = "data/flower_photos_test"
 
 # Load data
 train_ds = tf.keras.utils.image_dataset_from_directory(
-    train_data_dir,
+    TRAIN_DATA_DIR,
     validation_split=0.2,
     subset="training",
     seed=1337,
-    image_size=img_size,
-    batch_size=batch_size,
+    image_size=IMG_SIZE,
+    batch_size=BATCH_SIZE,
 )
 
 val_ds = tf.keras.utils.image_dataset_from_directory(
-    train_data_dir,
+    TRAIN_DATA_DIR,
     validation_split=0.2,
     subset="validation",
     seed=1337,
-    image_size=img_size,
-    batch_size=batch_size,
+    image_size=IMG_SIZE,
+    batch_size=BATCH_SIZE,
 )
 
 class_names = train_ds.class_names
@@ -38,7 +38,7 @@ print(f"Classes: {class_names}")
 model = keras.Sequential(
     [
         layers.Rescaling(
-            1.0 / 255, input_shape=img_size + (3,)
+            1.0 / 255, input_shape=IMG_SIZE + (3,)
         ),  # Normalize pixel values to [0, 1]
         layers.Conv2D(32, 3, activation="relu"),  # Learn patterns/features from images
         layers.MaxPooling2D(),  # Reduces image size, keeps most important info
@@ -77,13 +77,12 @@ with open("src/models/class_names.txt", "w") as f:
 
 print("Model and classes names save to src/models/")
 
-test_data_dir = "data/flower_photos_test"
-if os.path.exists(test_data_dir):
+if os.path.exists(TEST_DATA_DIR):
     print("\n--- Evaluating on Test Set ---")
     test_ds = tf.keras.utils.image_dataset_from_directory(
-        test_data_dir,
-        image_size=img_size,
-        batch_size=batch_size,
+        TEST_DATA_DIR,
+        image_size=IMG_SIZE,
+        batch_size=BATCH_SIZE,
         shuffle=False,
     )
     test_loss, test_acc = model.evaluate(test_ds)
