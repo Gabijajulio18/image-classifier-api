@@ -37,16 +37,20 @@ print(f"Classes: {class_names}")
 # Model
 model = keras.Sequential(
     [
-        layers.Rescaling(1.0 / 255, input_shape=img_size + (3,)),
-        layers.Conv2D(32, 3, activation="relu"),
-        layers.MaxPooling2D(),
+        layers.Rescaling(
+            1.0 / 255, input_shape=img_size + (3,)
+        ),  # Normalize pixel values to [0, 1]
+        layers.Conv2D(32, 3, activation="relu"),  # Learn patterns/features from images
+        layers.MaxPooling2D(),  # Reduces image size, keeps most important info
         layers.Conv2D(64, 3, activation="relu"),
         layers.MaxPooling2D(),
         layers.Conv2D(128, 3, activation="relu"),
         layers.MaxPooling2D(),
-        layers.Flatten(),
-        layers.Dense(128, activation="relu"),
-        layers.Dense(num_classes, activation="softmax"),
+        layers.Flatten(),  # Converts 3D feature to 1D vector
+        layers.Dense(128, activation="relu"),  # Learns higher-level features
+        layers.Dense(
+            num_classes, activation="softmax"
+        ),  # Outputs probabilities for each class
     ]
 )
 
