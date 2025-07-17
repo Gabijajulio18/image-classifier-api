@@ -19,10 +19,13 @@ with open(CLASSES_PATH, "r") as f:
 def predict_images(img_path: str):
     img = Image.open(img_path).convert("RGB")
     img = img.resize(IMG_SIZE)
-    arr = np.array(img) / 255.0
+    arr = np.array(img)
     arr = np.expand_dims(arr, axis=0)  # Add batch dimension
 
     preds = model.predict(arr)[0]
+    preds = tf.nn.softmax(
+        preds
+    ).numpy()  # Model outputs logits because it was trained with `from_logits=True`
     top_idx = np.argmax(preds)
     top_class = class_names[top_idx]
     confidence = float(preds[top_idx])
