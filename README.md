@@ -108,9 +108,42 @@ curl -X POST "http://localhost:8000/predict" \
 
 ---
 
-# Docker (WIP)
+# Docker Usage
+
+This project is fully containerized. You can build and run the API using Docker for consistent, portable deployment.
+
+## **Build the Docker Image**
+
+```bash
+docker build -t flower-api .
+```
+
+
+## **Run the API Container**
+
+```bash
+docker run -p 8000:8000 flower-api
+```
+- The API will be available at http://localhost:8000/docs
+
+## **Test the API**
+
+ Visit `/docs` in your browser or use `curl`:
+
+```bash
+curl -X POST "http://localhost:8000/predict" \
+    -H "accept: application/json" \
+    -H "Content-Type: multipart/form-data" \
+    -F "file=@test_images/daisy1.jpg"
+```
+
+**Note:**  
+- Make sure your trained model (`src/models/model.keras` and `src/models/class_names.txt`) exists **before** building the image.
+- The API does not need the training data to run—only the model and class file.
 
 --- 
+
+
 
 # Licence
 
