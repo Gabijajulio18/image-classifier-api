@@ -21,4 +21,4 @@ jobs:
           pip install -r requirements.txt
           pip install scikit-learn
       - name: Run evaluation
-        run: python src/evaluate.py            
+        run: python src/evaluate.py
