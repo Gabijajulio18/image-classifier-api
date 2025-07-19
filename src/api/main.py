@@ -1,6 +1,7 @@
 from fastapi import FastAPI, UploadFile, File
 from src.api.predictor import predict_images
 import os
+import tempfile
 
 app = FastAPI()
 
@@ -12,11 +13,19 @@ def root():
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
-    # Save the uploaded file temporarily
-    contents = await file.read()
-    with open("temp_image.jpg", "wb") as f:
-        f.write(contents)
+    """Predict the class of an uploaded image"""
 
-    result = predict_images("temp_image.jpg")
-    os.remove("temp_image.jpg")
+    contents = await file.read()
+
+    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".jpg")
+    try:
+        temp_file.write(contents)
+        temp_file.close()
+        result = predict_images(temp_file.name)
+    finally:
+        try:
+            temp_file.close()
+        finally:
+            if os.path.exists(temp_file.name):
+                os.remove(temp_file.name)
     return result
