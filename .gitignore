@@ -148,7 +148,7 @@ venv.bak/
 *.h5
 *.keras
 *.ckpt
-models/
+
 data/
 test_images/
 # Jupyter Notebook checkpoints
