@@ -148,7 +148,7 @@ venv.bak/
 *.h5
 *.ckpt
 
-data/
+flower_photos/
 test_images/
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints/
