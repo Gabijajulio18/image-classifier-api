@@ -106,6 +106,17 @@ curl -X POST "http://localhost:8000/predict" \
 
 # Model Evaluation (WIP)
 
+The model was evaluated on a held-out test set of 367 images.
+
+- **Accuracy:** 0.689
+- **Macro F1:** 0.682
+- **Weighted F1:** 0.688
+
+![Confusion Matrix](evaluation_results/confusion_matrix.png)
+
+The raw classification report and numeric confusion matrix are available in
+`evaluation_results/`.
+
 ---
 
 # Docker Usage

@@ -3,6 +3,7 @@ from tensorflow import keras
 import numpy as np
 from pprint import pprint
 import os
+import matplotlib.pyplot as plt
 
 from sklearn.metrics import confusion_matrix, classification_report
 import json
@@ -60,7 +61,23 @@ with open(os.path.join(results_dir, "classification_report.json"), "w") as f:
 np.save(os.path.join(results_dir, "confusion_matrix.npy"), cm)
 print("\nSaved metrics to evaluation_results/")
 
+# Save confusion matrix plot
+fig, ax = plt.subplots(figsize=(6, 6))
+im = ax.imshow(cm, cmap="Blues")
+ax.set_xticks(range(len(class_names)))
+ax.set_yticks(range(len(class_names)))
+ax.set_xticklabels(class_names, rotation=45, ha="right")
+ax.set_yticklabels(class_names)
+for i in range(len(class_names)):
+    for j in range(len(class_names)):
+        ax.text(j, i, cm[i, j], ha="center", va="center")
+ax.set_xlabel("Predicted")
+ax.set_ylabel("True")
+fig.tight_layout()
+plt.savefig(os.path.join(results_dir, "confusion_matrix.png"))
+plt.close(fig)
+
 # Print metrics
-print("\nConsfusion matrix:\n:", cm)
+print("\nConfusion matrix:\n", cm)
 print("\nClassification report:")
 pprint(report)
