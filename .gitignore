@@ -146,7 +146,6 @@ venv.bak/
 
 # Data and models
 *.h5
-*.keras
 *.ckpt
 
 data/
