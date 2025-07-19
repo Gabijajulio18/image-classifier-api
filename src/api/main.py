@@ -1,7 +1,9 @@
-from fastapi import FastAPI, UploadFile, File
-from src.api.predictor import predict_images
+"""FastAPI application definition."""
+
 import os
 import tempfile
+from fastapi import FastAPI, UploadFile, File, HTTPException
+from src.api.predictor import predict_images, InvalidImageError
 
 app = FastAPI()
 
@@ -13,7 +15,10 @@ def root():
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
-    """Predict the class of an uploaded image"""
+    """Predict the class of an uploaded image."""
+
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="File must be an image")
 
     contents = await file.read()
 
@@ -21,7 +26,10 @@ async def predict(file: UploadFile = File(...)):
     try:
         temp_file.write(contents)
         temp_file.close()
-        result = predict_images(temp_file.name)
+        try:
+            result = predict_images(temp_file.name)
+        except InvalidImageError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
     finally:
         try:
             temp_file.close()
