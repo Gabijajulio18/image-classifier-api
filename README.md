@@ -104,7 +104,7 @@ curl -X POST "http://localhost:8000/predict" \
 
 ---
 
-# Model Evaluation (WIP)
+# Model Evaluation
 
 The model was evaluated on a held-out test set of 367 images.
 
