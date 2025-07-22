@@ -10,6 +10,7 @@ app = FastAPI()
 
 @app.get("/")
 def root():
+    """Simple health check endpoint"""
     return {"message": "Flower Classifier API running"}
 
 
@@ -20,8 +21,9 @@ async def predict(file: UploadFile = File(...)):
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="File must be an image")
 
-    contents = await file.read()
+    contents = await file.read()  # Read uploaded file into memory
 
+    # Save bytes to a temporary file so Pillow/TensorFlow can open it
     temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".jpg")
     try:
         temp_file.write(contents)

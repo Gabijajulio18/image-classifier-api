@@ -1,3 +1,5 @@
+"""Utility script for evaluating the trained model on the test dataset"""
+
 import tensorflow as tf
 from tensorflow import keras
 import numpy as np
@@ -13,7 +15,7 @@ IMG_SIZE = (180, 180)
 BATCH_SIZE = 32
 MODEL_PATH = "src/models/model.keras"
 CLASS_PATH = "src/models/class_names.txt"
-TEST_DATA_DIR = "data/flower_photos_test"
+TEST_DATA_DIR = "data/flower_photos_test"  # Separate test dataset
 
 assert os.path.exists(MODEL_PATH), "Trained model not found."
 assert os.path.exists(CLASS_PATH), "class_names.txt not found."
@@ -46,10 +48,10 @@ for batch_images, batch_labels in test_ds:
 
 
 # Metric
-cm = confusion_matrix(y_true, y_pred)
+cm = confusion_matrix(y_true, y_pred)  # Raw counts for each class
 report = classification_report(
     y_true, y_pred, target_names=class_names, output_dict=True
-)
+)  # Precision/recall/F1 per class
 
 
 # Log results to file
@@ -61,7 +63,7 @@ with open(os.path.join(results_dir, "classification_report.json"), "w") as f:
 np.save(os.path.join(results_dir, "confusion_matrix.npy"), cm)
 print("\nSaved metrics to evaluation_results/")
 
-# Save confusion matrix plot
+# Visualize the confusion matrix
 fig, ax = plt.subplots(figsize=(6, 6))
 im = ax.imshow(cm, cmap="Blues")
 ax.set_xticks(range(len(class_names)))

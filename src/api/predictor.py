@@ -9,12 +9,13 @@ from PIL import Image, UnidentifiedImageError
 from tensorflow import keras
 
 
+# Paths relative to this file so module can be run from anywhere
 MODEL_PATH = os.path.join(os.path.dirname(__file__), "../models/model.keras")
 CLASSES_PATH = os.path.join(os.path.dirname(__file__), "../models/class_names.txt")
 IMG_SIZE = (180, 180)
 
 
-# Load model and classes once at startup
+# Load model and classes once at startup so predictions are fast
 model = keras.models.load_model(MODEL_PATH)
 with open(CLASSES_PATH, "r") as f:
     class_names = [line.strip() for line in f.readlines()]
@@ -47,12 +48,10 @@ def predict_images(img_path: str) -> Dict[str, object]:
 
     img = img.resize(IMG_SIZE)
     arr = np.array(img)
-    arr = np.expand_dims(arr, axis=0)  # Add batch dimension
+    arr = np.expand_dims(arr, axis=0)  # Model expects batch dimension
 
     preds = model.predict(arr)[0]
-    preds = tf.nn.softmax(
-        preds
-    ).numpy()  # Model outputs logits because it was trained with `from_logits=True`
+    preds = tf.nn.softmax(preds).numpy()  # Convert logits to probabilities
     top_idx = int(np.argmax(preds))
     top_class = class_names[top_idx]
     confidence = float(preds[top_idx])

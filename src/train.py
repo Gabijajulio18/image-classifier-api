@@ -1,3 +1,5 @@
+"""Training script for the flower classification model"""
+
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
@@ -7,8 +9,8 @@ import os
 # Settings
 IMG_SIZE = (180, 180)
 BATCH_SIZE = 32
-TRAIN_DATA_DIR = "data/flower_photos"
-TEST_DATA_DIR = "data/flower_photos_test"
+TRAIN_DATA_DIR = "data/flower_photos"  # Full training dataset
+TEST_DATA_DIR = "data/flower_photos_test"  # Optional held-put test set
 
 # Load data
 train_ds = tf.keras.utils.image_dataset_from_directory(
@@ -55,7 +57,7 @@ model = keras.Sequential(
 )
 
 model.compile(
-    optimizer="adam",
+    optimizer="adam",  # Good default optimizer
     loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
     metrics=["accuracy"],
 )
@@ -71,12 +73,13 @@ history = model.fit(
 
 # Save model & classes
 os.makedirs("src/models", exist_ok=True)
-model.save("src/models/model.keras")
+model.save("src/models/model.keras")  # Saved in Keras format
 with open("src/models/class_names.txt", "w") as f:
     f.write("\n".join(class_names))
 
 print("Model and classes names save to src/models/")
 
+# Optionally evaluate on a separate test set if it exists
 if os.path.exists(TEST_DATA_DIR):
     print("\n--- Evaluating on Test Set ---")
     test_ds = tf.keras.utils.image_dataset_from_directory(
