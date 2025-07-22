@@ -145,8 +145,11 @@ env.bak/
 venv.bak/
 
 # Data and models
+*.keras
 *.h5
+*.pth
 *.ckpt
+*.tar.gz
 
 flower_photos/
 test_images/
