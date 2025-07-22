@@ -8,3 +8,4 @@ scikit-learn
 python-multipart  # Needed for file uploads in FastAPI
 matplotlib
 pytest
+keras-tuner
