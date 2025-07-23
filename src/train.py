@@ -1,23 +1,38 @@
-"""Training script for the flower classification model"""
+"""Hyperparameter tuning for the flower classification model."""
 
+from __future__ import annotations
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 import os
+from typing import Tuple
+import keras_tuner as kt
+import random
+import numpy as np
 
 
-# Settings
-IMG_SIZE = (180, 180)
-BATCH_SIZE = 32
+# ---------------------------------------------------------------------------
+# Reproducibility
+# ---------------------------------------------------------------------------
+SEED = 1337
+random.seed(SEED)
+np.random.seed(SEED)
+tf.random.set_seed(SEED)
+
+# ---------------------------------------------------------------------------
+# Dataset
+# ---------------------------------------------------------------------------
+IMG_SIZE: Tuple[int, int] = (180, 180)
+BATCH_SIZE: int = 32
 TRAIN_DATA_DIR = "data/flower_photos"  # Full training dataset
 TEST_DATA_DIR = "data/flower_photos_test"  # Optional held-put test set
+EPOCHS = 20
 
-# Load data
 train_ds = tf.keras.utils.image_dataset_from_directory(
     TRAIN_DATA_DIR,
     validation_split=0.2,
     subset="training",
-    seed=1337,
+    seed=SEED,
     image_size=IMG_SIZE,
     batch_size=BATCH_SIZE,
 )
@@ -26,7 +41,7 @@ val_ds = tf.keras.utils.image_dataset_from_directory(
     TRAIN_DATA_DIR,
     validation_split=0.2,
     subset="validation",
-    seed=1337,
+    seed=SEED,
     image_size=IMG_SIZE,
     batch_size=BATCH_SIZE,
 )
@@ -36,50 +51,80 @@ num_classes = len(class_names)
 print(f"Classes: {class_names}")
 
 
-# Model
-model = keras.Sequential(
-    [
-        layers.Rescaling(
-            1.0 / 255, input_shape=IMG_SIZE + (3,)
-        ),  # Normalize pixel values to [0, 1]
-        layers.Conv2D(32, 3, activation="relu"),  # Learn patterns/features from images
-        layers.MaxPooling2D(),  # Reduces image size, keeps most important info
-        layers.Conv2D(64, 3, activation="relu"),
-        layers.MaxPooling2D(),
-        layers.Conv2D(128, 3, activation="relu"),
-        layers.MaxPooling2D(),
-        layers.Flatten(),  # Converts 3D feature to 1D vector
-        layers.Dense(128, activation="relu"),  # Learns higher-level features
-        layers.Dense(
-            num_classes, activation="linear"
-        ),  # Outputs probabilities for each class
-    ]
+# ---------------------------------------------------------------------------
+# Hypermodel definition
+# ---------------------------------------------------------------------------
+
+
+def build_model(hp: kt.HyperParameters) -> keras.Model:
+    """Build and compile a CNN based on hyperparameters"""
+    inputs = keras.Input(shape=IMG_SIZE + (3,))
+    x = layers.Rescaling(1.0 / 255)(inputs)
+
+    x = layers.Conv2D(
+        filters=hp.Choice("conv1_filters", [32, 64, 128]),
+        kernel_size=3,
+        activation="relu",
+    )(x)
+    x = layers.MaxPooling2D()(x)
+
+    x = layers.Conv2D(
+        filters=hp.Choice("conv2_filters", [64, 128, 256]),
+        kernel_size=3,
+        activation="relu",
+    )(x)
+    x = layers.MaxPooling2D()(x)
+
+    x = layers.Flatten()(x)
+    x = layers.Dropout(hp.Float("dropout", 0.1, 0.4, step=0.1))(x)
+    x = layers.Dense(
+        units=hp.Int("dense_units", 64, 256, step=32),
+        activation="relu",
+    )(x)
+
+    outputs = layers.Dense(num_classes, activation="linear")(x)
+    model = keras.Model(inputs, outputs)
+
+    lr = hp.Choice("learning_rate", [1e-3, 5e-4, 1e-4])
+    optimizer = keras.optimizers.Adam(learning_rate=lr)
+    model.compile(
+        optimizer=optimizer,
+        loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+        metrics=["accuracy"],
+    )
+    return model
+
+
+# ---------------------------------------------------------------------------
+# Hyperparameter search
+# ---------------------------------------------------------------------------
+
+tuner = kt.RandomSearch(
+    build_model,
+    objective="val_accuracy",
+    max_trials=10,
+    directory="kt_logs",
+    project_name="flower_tuning",
+    overwrite=True,
 )
 
-model.compile(
-    optimizer="adam",  # Good default optimizer
-    loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-    metrics=["accuracy"],
-)
+tuner.search(train_ds, validation_data=val_ds, epochs=10)
 
+# Retrieve results
+best_hp = tuner.get_best_hyperparameters(1)[0]
+best_model = tuner.get_best_models(1)[0]
 
-# Train
-history = model.fit(
-    train_ds,
-    validation_data=val_ds,
-    epochs=10,
-)
-
-
-# Save model & classes
+# --------------------------------------------------------------------------
+# Save best model & classes
+# --------------------------------------------------------------------------
 os.makedirs("src/models", exist_ok=True)
-model.save("src/models/model.keras")  # Saved in Keras format
+best_model.save("src/models/kt_best_model.keras")
 with open("src/models/class_names.txt", "w") as f:
     f.write("\n".join(class_names))
 
 print("Model and classes names save to src/models/")
 
-# Optionally evaluate on a separate test set if it exists
+# Optionally evaluate on a separate test set if it exists---------------------
 if os.path.exists(TEST_DATA_DIR):
     print("\n--- Evaluating on Test Set ---")
     test_ds = tf.keras.utils.image_dataset_from_directory(
@@ -88,5 +133,10 @@ if os.path.exists(TEST_DATA_DIR):
         batch_size=BATCH_SIZE,
         shuffle=False,
     )
-    test_loss, test_acc = model.evaluate(test_ds)
+    test_loss, test_acc = best_model.evaluate(test_ds)
     print(f"Test accuracy: {test_acc:.3f}")
+
+    print("\nBest hyperparameters:")
+    for name, value in best_hp.values.items():
+        print(f"  {name}: {value}")
+    print("\nBest model saved to src/models/kt_best_model.keras")
