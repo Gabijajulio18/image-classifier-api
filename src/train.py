@@ -105,7 +105,7 @@ tuner = kt.RandomSearch(
     max_trials=10,
     directory="kt_logs",
     project_name="flower_tuning",
-    overwrite=True,
+    overwrite=False,
 )
 
 tuner.search(train_ds, validation_data=val_ds, epochs=10)
