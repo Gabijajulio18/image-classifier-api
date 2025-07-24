@@ -44,7 +44,7 @@ print(f"Classes: {class_names}")
 # Improve performance by caching and prefetching
 # -----------------------------------------------------------------------
 AUTOTUNE = tf.data.AUTOTUNE
-train_ds = train_ds.chache().shuffle(1000).prefetch(buffer_size=AUTOTUNE)
+train_ds = train_ds.cache().shuffle(1000).prefetch(buffer_size=AUTOTUNE)
 val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
 
 
@@ -90,12 +90,15 @@ model.compile(
     metrics=["accuracy"],
 )
 
+stop_early = keras.callbacks.EarlyStopping(monitor="val_loss", patience=5)
+
 
 # Train
 history = model.fit(
     train_ds,
     validation_data=val_ds,
     epochs=50,
+    callbacks=[stop_early],
 )
 
 
