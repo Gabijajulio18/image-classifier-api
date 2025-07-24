@@ -82,8 +82,10 @@ model = keras.Sequential(
     ]
 )
 
+lr = 1e-4
+optimizer = keras.optimizers.Adam(learning_rate=lr)
 model.compile(
-    optimizer="adam",  # Good default optimizer
+    optimizer=optimizer,
     loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
     metrics=["accuracy"],
 )
