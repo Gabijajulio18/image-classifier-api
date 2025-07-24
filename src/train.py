@@ -76,7 +76,7 @@ def build_model(hp: kt.HyperParameters) -> keras.Model:
     x = layers.MaxPooling2D()(x)
 
     x = layers.Flatten()(x)
-    x = layers.Dropout(hp.Float("dropout", 0.1, 0.4, step=0.1))(x)
+    x = layers.Dropout(hp.Float("dropout", 0.3, 0.4, step=0.1))(x)
     x = layers.Dense(
         units=hp.Int("dense_units", 64, 256, step=32),
         activation="relu",
@@ -85,7 +85,7 @@ def build_model(hp: kt.HyperParameters) -> keras.Model:
     outputs = layers.Dense(num_classes, activation="linear")(x)
     model = keras.Model(inputs, outputs)
 
-    lr = hp.Choice("learning_rate", [1e-3, 5e-4, 1e-4])
+    lr = hp.Choice("learning_rate", [1e-3, 1e-4])
     optimizer = keras.optimizers.Adam(learning_rate=lr)
     model.compile(
         optimizer=optimizer,
