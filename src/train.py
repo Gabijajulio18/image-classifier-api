@@ -1,18 +1,22 @@
-"""Training script for the flower classification model"""
+"""Train a baseline CNN on the flowers dataset with basic regularisation."""
 
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 import os
+from typing import Tuple
 
 
-# Settings
-IMG_SIZE = (180, 180)
+IMG_SIZE: Tuple[int, int] = (180, 180)
 BATCH_SIZE = 32
 TRAIN_DATA_DIR = "data/flower_photos"  # Full training dataset
 TEST_DATA_DIR = "data/flower_photos_test"  # Optional held-put test set
+EPOCHS = 40
 
-# Load data
+
+# -----------------------------------------------------------------------
+# Data
+# -----------------------------------------------------------------------
 train_ds = tf.keras.utils.image_dataset_from_directory(
     TRAIN_DATA_DIR,
     validation_split=0.2,
@@ -36,7 +40,29 @@ num_classes = len(class_names)
 print(f"Classes: {class_names}")
 
 
+# -----------------------------------------------------------------------
+# Improve performance by caching and prefetching
+# -----------------------------------------------------------------------
+AUTOTUNE = tf.data.AUTOTUNE
+train_ds = train_ds.chache().shuffle(1000).prefetch(buffer_size=AUTOTUNE)
+val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
+
+
+# -----------------------------------------------------------------------
+# Data augmentation
+# -----------------------------------------------------------------------
+augmentation = keras.Sequential(
+    [
+        layers.RandomFlip("horizontal"),
+        layers.RandomRotation(0.1),
+        layers.RandomZoom(0.1),
+    ]
+)
+
+
+# -----------------------------------------------------------------------
 # Model
+# -----------------------------------------------------------------------
 model = keras.Sequential(
     [
         layers.Rescaling(
