@@ -153,6 +153,7 @@ kt_logs/
 cache/
 flower_photos/
 test_images/
+model.keras
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints/
 
