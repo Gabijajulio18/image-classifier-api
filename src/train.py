@@ -50,6 +50,16 @@ class_names = train_ds.class_names
 num_classes = len(class_names)
 print(f"Classes: {class_names}")
 
+# ---------------------------------------------------------------------------
+# Data augmentation
+# ---------------------------------------------------------------------------
+augmentation = keras.Sequential(
+    [
+        layers.RandomFlip("horizontal"),
+        layers.RandomRotation(0.1),
+        layers.RandomZoom(0.1),
+    ]
+)
 
 # ---------------------------------------------------------------------------
 # Hypermodel definition
@@ -59,6 +69,7 @@ print(f"Classes: {class_names}")
 def build_model(hp: kt.HyperParameters) -> keras.Model:
     """Build and compile a CNN based on hyperparameters"""
     inputs = keras.Input(shape=IMG_SIZE + (3,))
+    x = augmentation(inputs)
     x = layers.Rescaling(1.0 / 255)(inputs)
 
     x = layers.Conv2D(
