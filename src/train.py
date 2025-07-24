@@ -1,14 +1,15 @@
 """Hyperparameter tuning for the flower classification model."""
 
 from __future__ import annotations
-import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras import layers
+import random
 import os
 from typing import Tuple
-import keras_tuner as kt
-import random
+
 import numpy as np
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers, mixed_precision
+import keras_tuner as kt
 
 
 # ---------------------------------------------------------------------------
@@ -18,15 +19,20 @@ SEED = 1337
 random.seed(SEED)
 np.random.seed(SEED)
 tf.random.set_seed(SEED)
+mixed_precision.set_global_policy(
+    "mixed_float16"
+)  # Enable mixed precision to reduce memory usage and improve performance
 
 # ---------------------------------------------------------------------------
 # Dataset
 # ---------------------------------------------------------------------------
 IMG_SIZE: Tuple[int, int] = (180, 180)
-BATCH_SIZE: int = 32
+BATCH_SIZE: int = 16
+MAX_EPOCHS = 20
+AUTOTUNE = tf.data.AUTOTUNE
 TRAIN_DATA_DIR = "data/flower_photos"  # Full training dataset
 TEST_DATA_DIR = "data/flower_photos_test"  # Optional held-put test set
-EPOCHS = 20
+
 
 train_ds = tf.keras.utils.image_dataset_from_directory(
     TRAIN_DATA_DIR,
@@ -46,9 +52,17 @@ val_ds = tf.keras.utils.image_dataset_from_directory(
     batch_size=BATCH_SIZE,
 )
 
+
 class_names = train_ds.class_names
 num_classes = len(class_names)
 print(f"Classes: {class_names}")
+
+
+# Cache datasets to disk and prefetch for efficient use of RAM
+os.makedirs("data/cache", exist_ok=True)
+train_ds = train_ds.cache("data/cache/train.cache").prefetch(AUTOTUNE)
+val_ds = val_ds.cache("data/cache/val.cache").prefetch(AUTOTUNE)
+
 
 # ---------------------------------------------------------------------------
 # Data augmentation
@@ -93,7 +107,7 @@ def build_model(hp: kt.HyperParameters) -> keras.Model:
         activation="relu",
     )(x)
 
-    outputs = layers.Dense(num_classes, activation="linear")(x)
+    outputs = layers.Dense(num_classes, activation="linear", dtype="float32")(x)
     model = keras.Model(inputs, outputs)
 
     lr = hp.Choice("learning_rate", [1e-3, 1e-4])
@@ -110,16 +124,24 @@ def build_model(hp: kt.HyperParameters) -> keras.Model:
 # Hyperparameter search
 # ---------------------------------------------------------------------------
 
-tuner = kt.RandomSearch(
+tuner = kt.Hyperband(
     build_model,
     objective="val_accuracy",
-    max_trials=10,
+    max_epochs=MAX_EPOCHS,
     directory="kt_logs",
     project_name="flower_tuning",
     overwrite=False,
 )
 
-tuner.search(train_ds, validation_data=val_ds, epochs=10)
+# Stop training early if the model stops improving
+stop_early = keras.callbacks.EarlyStopping(monitor="val_loss", patience=3)
+
+tuner.search(
+    train_ds,
+    validation_data=val_ds,
+    epochs=MAX_EPOCHS,
+    callbacks=[stop_early],
+)
 
 # Retrieve results
 best_hp = tuner.get_best_hyperparameters(1)[0]
@@ -133,7 +155,7 @@ best_model.save("src/models/kt_best_model.keras")
 with open("src/models/class_names.txt", "w") as f:
     f.write("\n".join(class_names))
 
-print("Model and classes names save to src/models/")
+print("Model and class names save to src/models/")
 
 # Optionally evaluate on a separate test set if it exists---------------------
 if os.path.exists(TEST_DATA_DIR):

@@ -150,7 +150,7 @@ kt_logs/
 *.pth
 *.ckpt
 *.tar.gz
-
+cache/
 flower_photos/
 test_images/
 # Jupyter Notebook checkpoints
