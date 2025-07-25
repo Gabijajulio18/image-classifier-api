@@ -54,8 +54,8 @@ val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
 augmentation = keras.Sequential(
     [
         layers.RandomFlip("horizontal"),
-        layers.RandomRotation(0.1),
-        layers.RandomZoom(0.1),
+        layers.RandomRotation(0.2),
+        layers.RandomZoom(0.2),
     ]
 )
 
@@ -68,14 +68,14 @@ model = keras.Sequential(
         layers.Rescaling(
             1.0 / 255, input_shape=IMG_SIZE + (3,)
         ),  # Normalize pixel values to [0, 1]
-        layers.Conv2D(64, 3, activation="relu"),  # Learn patterns/features from images
+        layers.Conv2D(32, 3, activation="relu"),  # Learn patterns/features from images
         layers.MaxPooling2D(),  # Reduces image size, keeps most important info
+        layers.Conv2D(64, 3, activation="relu"),
+        layers.MaxPooling2D(),
         layers.Conv2D(128, 3, activation="relu"),
         layers.MaxPooling2D(),
-        layers.Conv2D(256, 3, activation="relu"),
-        layers.MaxPooling2D(),
         layers.Flatten(),  # Converts 3D feature to 1D vector
-        layers.Dropout(0.4)
+        layers.Dropout(0.3),
         layers.Dense(256, activation="relu"),  # Learns higher-level features
         layers.Dense(
             num_classes, activation="linear"
@@ -83,15 +83,15 @@ model = keras.Sequential(
     ]
 )
 
-lr = 1e-4
-optimizer = keras.optimizers.Adam(learning_rate=lr)
+# lr = 1e-4
+# optimizer = keras.optimizers.Adam(learning_rate=lr)
 model.compile(
-    optimizer=optimizer,
+    optimizer="Adam",
     loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
     metrics=["accuracy"],
 )
 
-stop_early = keras.callbacks.EarlyStopping(monitor="val_loss", patience=5)
+stop_early = keras.callbacks.EarlyStopping(monitor="val_loss", patience=10)
 
 
 # Train
