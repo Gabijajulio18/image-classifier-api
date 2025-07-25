@@ -104,18 +104,56 @@ curl -X POST "http://localhost:8000/predict" \
 
 ---
 
-# Model Evaluation
+# Baseline Model Evaluation
 
 The model was evaluated on a held-out test set of 367 images.
 
-- **Accuracy:** 0.689
-- **Macro F1:** 0.682
-- **Weighted F1:** 0.688
+- **Accuracy:** 0.717
+- **Macro F1:** 0.705
+- **Weighted F1:** 0.710
 
 ![Confusion Matrix](evaluation_results/confusion_matrix.png)
 
 The raw classification report and numeric confusion matrix are available in
 `evaluation_results/`.
+
+---
+
+### Confusion Matrix Insights
+
+- **Roses vs Tulips:** 20 rose images were predicted as tulips and 16 tulips as roses.
+- **Daisy vs Dandelion:** 12 daisies were classified as dandelions and 7 dandelions as daisies.
+- **Other Classes:** Misclassifications for sunflowers were mostly against dandelions.
+
+The class distribution is moderately imbalanced (`support` ranges from 63 to 90
+images) which may contribute to these confusions. Visual similarity between
+roses and tulips is also a likely cause.
+
+### Current Issues
+
+- Moderate overfitting despite basic augmentation.
+- Largest errors come from visually similar classes.
+- The custom CNN may be underpowered compared to modern pretrained
+  architectures.
+
+Further error analysis (e.g., inspecting the saved misclassified images using
+`analysis/error_analysis.py`) can reveal if data quality is a factor.
+
+---
+
+# Baseline vs Transfer Learning (Upcoming)
+
+The current model is a custom CNN trained from scratch. A forthcoming update
+will train a MobileNetV2 model using transfer learning and compare its
+performance against the baseline. We expect the pretrained model to converge
+faster and yield higher accuracy.
+
+| Model | Accuracy | Macro F1 |
+|-------|---------:|---------:|
+| Baseline CNN | 0.717 | 0.705 |
+| MobileNetV2 | _TBD_ | _TBD_ |
+
+Results will be added here when training is complete.
 
 ---
 
