@@ -11,7 +11,7 @@ IMG_SIZE: Tuple[int, int] = (180, 180)
 BATCH_SIZE = 32
 TRAIN_DATA_DIR = "data/flower_photos"  # Full training dataset
 TEST_DATA_DIR = "data/flower_photos_test"  # Optional held-put test set
-EPOCHS = 40
+EPOCHS = 50
 
 
 # -----------------------------------------------------------------------
@@ -56,6 +56,8 @@ augmentation = keras.Sequential(
         layers.RandomFlip("horizontal"),
         layers.RandomRotation(0.2),
         layers.RandomZoom(0.2),
+        layers.RandomContrast(0.2),
+        layers.RandomTranslation(height_factor=0.1, width_factor=0.1),
     ]
 )
 
@@ -65,28 +67,29 @@ augmentation = keras.Sequential(
 # -----------------------------------------------------------------------
 model = keras.Sequential(
     [
-        layers.Rescaling(
-            1.0 / 255, input_shape=IMG_SIZE + (3,)
-        ),  # Normalize pixel values to [0, 1]
-        layers.Conv2D(32, 3, activation="relu"),  # Learn patterns/features from images
-        layers.MaxPooling2D(),  # Reduces image size, keeps most important info
-        layers.Conv2D(64, 3, activation="relu"),
+        layers.Rescaling(1.0 / 255, input_shape=IMG_SIZE + (3,)),
+        augmentation,
+        layers.Conv2D(32, 3, padding="same", activation="relu"),
+        layers.BatchNormalization(),
         layers.MaxPooling2D(),
-        layers.Conv2D(128, 3, activation="relu"),
+        layers.Conv2D(64, 3, padding="same", activation="relu"),
+        layers.BatchNormalization(),
         layers.MaxPooling2D(),
-        layers.Flatten(),  # Converts 3D feature to 1D vector
-        layers.Dropout(0.3),
-        layers.Dense(256, activation="relu"),  # Learns higher-level features
-        layers.Dense(
-            num_classes, activation="linear"
-        ),  # Outputs probabilities for each class
+        layers.Conv2D(128, 3, padding="same", activation="relu"),
+        layers.BatchNormalization(),
+        layers.MaxPooling2D(),
+        layers.Flatten(),
+        layers.Dropout(0.5),
+        layers.Dense(256, activation="relu"),
+        layers.Dropout(0.5),
+        layers.Dense(num_classes, activation="linear"),
     ]
 )
 
-# lr = 1e-4
-# optimizer = keras.optimizers.Adam(learning_rate=lr)
+lr = 1e-4
+optimizer = keras.optimizers.Adam(learning_rate=lr)
 model.compile(
-    optimizer="Adam",
+    optimizer=optimizer,
     loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
     metrics=["accuracy"],
 )
@@ -98,7 +101,7 @@ stop_early = keras.callbacks.EarlyStopping(monitor="val_loss", patience=10)
 history = model.fit(
     train_ds,
     validation_data=val_ds,
-    epochs=50,
+    epochs=EPOCHS,
     callbacks=[stop_early],
 )
 
