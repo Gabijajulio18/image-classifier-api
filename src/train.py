@@ -75,6 +75,7 @@ model = keras.Sequential(
         layers.Conv2D(256, 3, activation="relu"),
         layers.MaxPooling2D(),
         layers.Flatten(),  # Converts 3D feature to 1D vector
+        layers.Dropout(0.4)
         layers.Dense(256, activation="relu"),  # Learns higher-level features
         layers.Dense(
             num_classes, activation="linear"
