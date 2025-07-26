@@ -1,0 +1,12 @@
+[
+  {
+    "Model": "Baseline CNN",
+    "Accuracy": 0.7166212797164917,
+    "Macro F1": 0.7050846242710962
+  },
+  {
+    "Model": "MobileNetV2",
+    "Accuracy": 0.9046321511268616,
+    "Macro F1": 0.9039587957553719
+  }
+]
