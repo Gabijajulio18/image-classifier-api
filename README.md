@@ -45,17 +45,17 @@ pip install -r requirements.txt
 
 ### 2. **Prepare Data**
 
-Download the training dataset (around 200MB) using the helper script
+Download the training dataset (around 200MB) using the helper script:
 
 ```bash
-scr/download_data.py
+ python scr/download_data.py data
 
 ```
 
 ### 3. **Train Model**
 
 ```bash
-python src/train.py # see --help for options
+python src/train.py --train-dir data/flower_photos --epochs 50 # see --help for options
 ```
 
 ### 4. **Run API**
@@ -110,7 +110,7 @@ The model was evaluated on a held-out test set of 367 images.
 - **Macro F1:** 0.705
 - **Weighted F1:** 0.710
 
-![Confusion Matrix](evaluation_results/confusion_matrix.png)
+![Confusion Matrix](evaluation_results/baseline_cm.png)
 
 The raw classification report and numeric confusion matrix are available in
 `evaluation_results/`.
@@ -139,7 +139,7 @@ Further error analysis (e.g., inspecting the saved misclassified images using
 
 ---
 
-# Baseline vs Transfer Learning (Upcoming)
+# Baseline vs Transfer Learning 
 
 The current model is a custom CNN trained from scratch. A forthcoming update
 will train a MobileNetV2 model using transfer learning and compare its
@@ -149,11 +149,9 @@ faster and yield higher accuracy.
 | Model | Accuracy | Macro F1 |
 |-------|---------:|---------:|
 | Baseline CNN | 0.717 | 0.705 |
-| MobileNetV2 | _TBD_ | _TBD_ |
+| MobileNetV2 | 0.905 | 0.904 |
 
-Results will be added here when training is complete.
-
----
+![Transfer Confusion](evaluation_results/transfer_cm.png)
 
 # Docker Usage
 
