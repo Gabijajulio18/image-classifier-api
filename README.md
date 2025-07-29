@@ -45,19 +45,17 @@ pip install -r requirements.txt
 
 ### 2. **Prepare Data**
 
-Download and extract the [flowers_photos.tgz](https://www.tensorflow.org/datasets/catalog/tf_flowers):
+Download the training dataset (around 200MB) using the helper script
 
 ```bash
-wget https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz
-mkdir -p data
-tar -xzf flower_photos.tgz -C data
+scr/download_data.py
 
 ```
 
 ### 3. **Train Model**
 
 ```bash
-python src/train.py
+python src/train.py # see --help for options
 ```
 
 ### 4. **Run API**
