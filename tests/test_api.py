@@ -4,6 +4,30 @@ import time
 import requests
 import pytest
 
+
+def ensure_dummy_model():
+    """Create a tiny model so the API can start during tests."""
+    model_path = "src/models/model.keras"
+    if os.path.exists(model_path):
+        return
+
+    os.makedirs(os.path.dirname(model_path), exist_ok=True)
+    import tensorflow as tf
+    from tensorflow import keras
+    from tensorflow.keras import layers
+
+    model = keras.Sequential(
+        [
+            layers.Input(shape=(180, 180, 3)),
+            layers.Flatten(),
+            layers.Dense(5),
+        ]
+    )
+    model.save(model_path)
+    with open("src/models/class_names.txt", "w") as f:
+        f.write("\n".join(["daisy", "dandelion", "roses", "sunflowers", "tulips"]))
+
+
 API_HOST = "http://127.0.0.1:8001"
 DATA_DIR = "data/flower_photos_test/daisy"
 SAMPLE_IMG = os.path.join(DATA_DIR, os.listdir(DATA_DIR)[0])  # Pick one sample image
@@ -32,6 +56,7 @@ def wait_for_server():
 @pytest.fixture(scope="module", autouse=True)
 def api_server():
     """Spin up the API server for the duration of the tests"""
+    ensure_dummy_model()
     proc = start_server()
     try:
         wait_for_server()
