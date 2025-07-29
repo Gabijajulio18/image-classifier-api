@@ -12,6 +12,8 @@ from tensorflow import keras
 from tensorflow.keras import layers
 import os
 from typing import Tuple
+import csv
+from datetime import datetime
 
 
 IMG_SIZE: Tuple[int, int] = (180, 180)
@@ -145,6 +147,25 @@ def main() -> None:
         )
         test_loss, test_acc = model.evaluate(test_ds)
         print(f"Test accuracy: {test_acc:.3f}")
+
+    # -------------------------------------------------------------------
+    # Log experiment result
+    # -------------------------------------------------------------------
+
+    log_path = "experiments.csv"
+    write_header = not os.path.exists(log_path)
+    with open(log_path, "a", newline="") as f:
+        writer = csv.writer(f)
+        if write_header:
+            writer.writerow(["timestamp", "model", "val_accuracy", "test_accuracy"])
+        writer.writerow(
+            [
+                datetime.now().isoformat(timespec="seconds"),
+                "baseline_cnn",
+                max(history.history.get("val_accuracy", [0])),
+                test_acc,
+            ]
+        )
 
 
 if __name__ == "__main__":

@@ -1,7 +1,11 @@
 """Train a MobileNetV2 model using transfer learning."""
 
+import argparse
 import os
 from typing import Tuple
+
+import csv
+from datetime import datetime
 
 import tensorflow as tf
 from tensorflow import keras
@@ -11,31 +15,48 @@ from tensorflow.keras import layers
 # Configuration
 # ---------------------------------------------------------------------------
 IMG_SIZE: Tuple[int, int] = (180, 180)
-BATCH_SIZE = 32
-TRAIN_DATA_DIR = "data/flower_photos"
-TEST_DATA_DIR = "data/flower_photos_test"
-INITIAL_EPOCHS = 5
-FINE_TUNE_EPOCHS = 5
+DEFAULT_BATCH_SIZE = 32
+DEFAULT_TRAIN_DIR = "data/flower_photos"
+DEFAULT_TEST_DIR = "data/flower_photos_test"
+DEFAULT_INITIAL_EPOCHS = 5
+DEFAULT_FINE_TUNE_EPOCHS = 5
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Train MobileNetV2 via transfer learning"
+    )
+    parser.add_argument("--train-dir", default=DEFAULT_TRAIN_DIR)
+    parser.add_argument("--test-dir", default=DEFAULT_TEST_DIR)
+    parser.add_argument("--model-out", default="src/models/transfer_model.keras")
+    parser.add_argument("--batch-size", type=int, default=DEFAULT_BATCH_SIZE)
+    parser.add_argument("--initial-epochs", type=int, default=DEFAULT_INITIAL_EPOCHS)
+    parser.add_argument("--fine-epochs", type=int, default=DEFAULT_FINE_TUNE_EPOCHS)
+    return parser.parse_args()
+
+
+args = parse_args()
+
 
 # ---------------------------------------------------------------------------
 # Data Loading
 # ---------------------------------------------------------------------------
 train_ds = tf.keras.utils.image_dataset_from_directory(
-    TRAIN_DATA_DIR,
+    args.train_dir,
     validation_split=0.2,
     subset="training",
     seed=1337,
     image_size=IMG_SIZE,
-    batch_size=BATCH_SIZE,
+    batch_size=args.batch_size,
 )
 
 val_ds = tf.keras.utils.image_dataset_from_directory(
-    TRAIN_DATA_DIR,
+    args.train_dir,
     validation_split=0.2,
     subset="validation",
     seed=1337,
     image_size=IMG_SIZE,
-    batch_size=BATCH_SIZE,
+    batch_size=args.batch_size,
 )
 
 class_names = train_ds.class_names
@@ -86,16 +107,16 @@ model.compile(
     metrics=["accuracy"],
 )
 
-os.makedirs("src/models", exist_ok=True)
+os.makedirs(os.path.dirname(args.model_out), exist_ok=True)
 checkpoint = keras.callbacks.ModelCheckpoint(
-    "src/models/transfer_model.keras", save_best_only=True, monitor="val_accuracy"
+    args.model_out, save_best_only=True, monitor="val_accuracy"
 )
 
 print("\n--- Initial Training ---")
 history = model.fit(
     train_ds,
     validation_data=val_ds,
-    epochs=INITIAL_EPOCHS,
+    epochs=args.initial_epochs,
     callbacks=[checkpoint],
 )
 
@@ -113,24 +134,44 @@ print("\n--- Fine-tuning ---")
 model.fit(
     train_ds,
     validation_data=val_ds,
-    epochs=INITIAL_EPOCHS + FINE_TUNE_EPOCHS,
+    epochs=args.initial_epochs + args.fine_epochs,
     initial_epoch=history.epoch[-1] + 1,
     callbacks=[checkpoint],
 )
 
 # Load best model for evaluation / saving
-best_model = keras.models.load_model("src/models/transfer_model.keras")
+best_model = keras.models.load_model(args.model_out)
 
-with open("src/models/class_names.txt", "w") as f:
+class_file = os.path.join(os.path.dirname(args.model_out), "class_names.txt")
+with open(class_file, "w") as f:
     f.write("\n".join(class_names))
 
-if os.path.exists(TEST_DATA_DIR):
+if os.path.exists(args.test_dir):
     print("\n--- Evaluating on Test Set ---")
     test_ds = tf.keras.utils.image_dataset_from_directory(
-        TEST_DATA_DIR,
+        args.test_dir,
         image_size=IMG_SIZE,
-        batch_size=BATCH_SIZE,
+        batch_size=args.batch_size,
         shuffle=False,
     )
     test_loss, test_acc = best_model.evaluate(test_ds)
     print(f"Test accuracy: {test_acc:.3f}")
+
+# -------------------------------------------------------------------
+# Log experiment result
+# -------------------------------------------------------------------
+
+log_path = "experiments.csv"
+write_header = not os.path.exists(log_path)
+with open(log_path, "a", newline="") as f:
+    writer = csv.writer(f)
+    if write_header:
+        writer.writerow(["timestamp", "model", "val_accuracy", "test_accuracy"])
+    writer.writerow(
+        [
+            datetime.now().isoformat(timespec="seconds"),
+            "baseline_cnn",
+            max(history.history.get("val_accuracy", [0])),
+            test_acc,
+        ]
+    )
