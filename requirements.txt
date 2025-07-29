@@ -1,11 +1,11 @@
-fastapi
-uvicorn
-pandas
-numpy
-pillow
-tensorflow>=2.12
-scikit-learn
-python-multipart  # Needed for file uploads in FastAPI
-matplotlib
+fastapi>=0.116.1
+uvicorn[standard]>=0.35.0
+pandas>=2.3
+numpy>=2.1
+pillow>=11.0
+tensorflow>=2.19
+scikit-learn>=1.7
+python-multipart
+matplotlib>=3.10
+keras-tuner>=1.4
 pytest
-keras-tuner
