@@ -15,19 +15,24 @@ A fully reproducible, production-ready AI project that classifies flower images 
 ##  Project Structure
 ```bash
 ├── src/
-│ ├── train.py # Training pipeline
-│ ├── models/ # Saved model (not committed)
-│ │ ├── model.keras 
-│ │ └── class_names.txt
-│ └── api/
-│ ├── main.py # FastAPI app
-│ └── predictor.py # Model loading and prediction logic
-├── data/ # Training data (not committed)
-├── test_images/ # Images for manual or automated testing
-├── requirements.txt
+│   ├── api/
+│   │   ├── main.py          # FastAPI app
+│   │   └── predictor.py     # Model loading and inference
+│   ├── download_data.py     # Fetch the dataset
+│   ├── train.py             # Baseline training pipeline
+│   ├── train_transfer.py    # Transfer learning training
+│   ├── evaluate.py          # Evaluate a saved model
+│   ├── compare_models.py    # Compare baseline vs transfer
+│   └── models/              # Saved model artifacts (not committed)
+│       └── class_names.txt
+├── analysis/                # Metrics and error analysis scripts
+├── evaluation_results/      # Stored evaluation outputs
+├── misclassified_examples/  # Example misclassified images
+├── data/                    # Dataset (not committed)
 ├── Dockerfile
-├── .gitignore
-└── README.md 
+├── pyproject.toml
+├── requirements.txt
+└── README.md
 ```
 ---
 
