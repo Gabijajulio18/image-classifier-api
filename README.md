@@ -113,6 +113,8 @@ A new row will be appended with metrics for each run.
 
 - **Architecture**: Custom CNN with 3 Conv2D + MaxPooling blocks, 1 Dense hidden layer, softmax output
 
+- **Augmentation**: RandomFlip, RandomRotation, RandomZoom, RandomContrast and RandomTranslation
+
 - **Preprocessing**: Rescale to [0,1], resize to 180x180, RGB
 
 - **Loss**: SparseCategoricalCrossentropy (from_logits=True for logits version)
