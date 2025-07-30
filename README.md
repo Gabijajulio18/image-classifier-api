@@ -164,7 +164,7 @@ Further error analysis (e.g., inspecting the saved misclassified images using
 
 The current model is a custom CNN trained from scratch. A forthcoming update
 will train a MobileNetV2 model using transfer learning and compare its
-performance against the baseline. We expect the pretrained model to converge
+performance against the baseline. I expect the pretrained model to converge
 faster and yield higher accuracy.
 
 | Model | Accuracy | Macro F1 |
