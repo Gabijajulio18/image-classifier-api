@@ -138,8 +138,8 @@ The raw classification report and numeric confusion matrix are available in
 
 ### Confusion Matrix Insights
 
-- **Roses vs Tulips:** 20 rose images were predicted as tulips and 16 tulips as roses.
-- **Daisy vs Dandelion:** 12 daisies were classified as dandelions and 7 dandelions as daisies.
+- **Roses vs Tulips:** 21 rose images were predicted as tulips and 8 tulips as roses.
+- **Daisy vs Dandelion:** 5 daisies were classified as dandelions and 8 dandelions as daisies.
 - **Other Classes:** Misclassifications for sunflowers were mostly against dandelions.
 
 The class distribution is moderately imbalanced (`support` ranges from 63 to 90
