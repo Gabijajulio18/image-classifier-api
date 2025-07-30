@@ -144,6 +144,7 @@ ENV/
 env.bak/
 venv.bak/
 kt_logs/
+
 # Data and models
 *.keras
 *.h5
@@ -166,7 +167,7 @@ src/models/*.keras
 
 # mkdocs documentation
 /site
-
+.vscode
 # mypy
 .mypy_cache/
 .dmypy.json
