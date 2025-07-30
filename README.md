@@ -45,11 +45,11 @@ pip install -r requirements.txt
 
 ### 2. **Prepare Data**
 
-Download the training dataset (around 200MB) using the helper script:
+Download the training dataset (around 200MB) using the helper script. This will
+also create a small `flower_photos_test` folder used for evaluation:
 
 ```bash
- python scr/download_data.py data
-
+python src/download_data.py data --with-test --test-count 20
 ```
 
 ### 3. **Train Model**
