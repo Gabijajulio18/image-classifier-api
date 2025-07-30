@@ -90,6 +90,20 @@ curl -X POST "http://localhost:8000/predict" \
 ```
 ---
 
+## Reproducing Experiments
+
+Training and evaluation commands log results to `experiments.csv`.
+Run the MobileNetV2 transfer experiment with:
+
+```bash
+python src/train_transfer.py --train-dir data/flower_photos 
+       --model-out src/models/transfer_model.keras
+```
+
+A new row will be appended with metrics for each run.
+
+---
+
 # Model Details
 
 - **Architecture**: Custom CNN with 3 Conv2D + MaxPooling blocks, 1 Dense hidden layer, softmax output
