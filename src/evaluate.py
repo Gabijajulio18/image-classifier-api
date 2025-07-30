@@ -42,7 +42,7 @@ def main() -> None:
 
     # Load test set
     test_ds = tf.keras.utils.image_dataset_from_directory(
-        args.test_dir, image_size=IMG_SIZE, batch_size=args.baych_sizer, shuffle=False
+        args.test_dir, image_size=IMG_SIZE, batch_size=args.batch_size, shuffle=False
     )
 
     # Evaluate model
