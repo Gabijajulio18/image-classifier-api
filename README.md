@@ -66,7 +66,7 @@ python src/train.py --train-dir data/flower_photos --epochs 50 # see --help for 
 ### 4. **Run API**
 
 ```bash
-uvicorn src.api.main:app --reload
+uvicorn src.api.main:app --reload # or python3 -m src.api.run
 ```
 - Visit http://localhost:8000/docs to upload an image and get predictions.
 
