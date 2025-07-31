@@ -146,6 +146,7 @@ class_file = os.path.join(os.path.dirname(args.model_out), "class_names.txt")
 with open(class_file, "w") as f:
     f.write("\n".join(class_names))
 
+test_acc = None
 if os.path.exists(args.test_dir):
     print("\n--- Evaluating on Test Set ---")
     test_ds = tf.keras.utils.image_dataset_from_directory(
@@ -154,7 +155,7 @@ if os.path.exists(args.test_dir):
         batch_size=args.batch_size,
         shuffle=False,
     )
-    test_loss, test_acc = best_model.evaluate(test_ds)
+    _, test_acc = best_model.evaluate(test_ds)
     print(f"Test accuracy: {test_acc:.3f}")
 
 # -------------------------------------------------------------------
@@ -170,7 +171,7 @@ with open(log_path, "a", newline="") as f:
     writer.writerow(
         [
             datetime.now().isoformat(timespec="seconds"),
-            "baseline_cnn",
+            "mobilenetv2",
             max(history.history.get("val_accuracy", [0])),
             test_acc,
         ]

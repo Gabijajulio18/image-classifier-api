@@ -137,6 +137,7 @@ def main() -> None:
     print("Model and classes names save to src/models/")
 
     # Optionally evaluate on a separate test set if it exists
+    test_acc = None
     if os.path.exists(args.test_dir):
         print("\n--- Evaluating on Test Set ---")
         test_ds = tf.keras.utils.image_dataset_from_directory(
@@ -145,7 +146,7 @@ def main() -> None:
             batch_size=args.batch_size,
             shuffle=False,
         )
-        test_loss, test_acc = model.evaluate(test_ds)
+        _, test_acc = model.evaluate(test_ds)
         print(f"Test accuracy: {test_acc:.3f}")
 
     # -------------------------------------------------------------------
